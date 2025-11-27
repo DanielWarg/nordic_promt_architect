@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext): void {
   logger.info('Nordic Prompt Architect initializing...');
   const configService = new ConfigurationService(logger);
   const sanitizer = new Sanitizer(logger);
-  const crystallizeEngine = new CrystallizeEngine();
+  const crystallizeEngine = new CrystallizeEngine(logger);
   const architectEngine = new ArchitectEngine();
   const verifyEngine = new VerifyEngine();
 
@@ -60,12 +60,93 @@ export function activate(context: vscode.ExtensionContext): void {
 
     try {
       const config = configService.getConfig();
-      const result = crystallizeEngine.run(selection, config);
+      // Use generateTechSpec for backward compatibility
+      const result = crystallizeEngine.generateTechSpec(selection, config);
       await ViewManager.openMarkdown(result);
       logger.info('Crystallize completed successfully');
     } catch (error) {
       logger.error('Crystallize failed', error instanceof Error ? error : new Error(String(error)));
       vscode.window.showErrorMessage('Crystallize failed. Check logs for details.');
+    }
+  });
+
+  // Register Crystallize Spec command
+  const crystallizeSpecCommand = vscode.commands.registerCommand('superprompt.crystallizeSpec', async () => {
+    logger.info('Crystallize Spec command invoked');
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showWarningMessage('No active editor found');
+      return;
+    }
+
+    const selection = editor.document.getText(editor.selection);
+    if (!selection || selection.trim().length === 0) {
+      vscode.window.showWarningMessage('No text selected or selection is empty');
+      return;
+    }
+
+    const LARGE_SELECTION_THRESHOLD = 100000;
+    if (selection.length > LARGE_SELECTION_THRESHOLD) {
+      const proceed = await vscode.window.showWarningMessage(
+        `You have selected ${selection.length.toLocaleString()} characters. This may take a while. Continue?`,
+        'Continue',
+        'Cancel'
+      );
+      if (proceed !== 'Continue') {
+        return;
+      }
+      logger.warn(`Processing large selection: ${selection.length} characters`);
+    }
+
+    try {
+      const config = configService.getConfig();
+      const result = crystallizeEngine.generateTechSpec(selection, config);
+      await ViewManager.openMarkdown(result);
+      logger.info('Crystallize Spec completed successfully');
+    } catch (error) {
+      logger.error('Crystallize Spec failed', error instanceof Error ? error : new Error(String(error)));
+      vscode.window.showErrorMessage('Crystallize Spec failed. Check logs for details.');
+    }
+  });
+
+  // Register Crystallize Diplomat command
+  const crystallizeDiplomatCommand = vscode.commands.registerCommand('superprompt.crystallizeDiplomat', async () => {
+    logger.info('Crystallize Diplomat command invoked');
+
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showWarningMessage('No active editor found');
+      return;
+    }
+
+    const selection = editor.document.getText(editor.selection);
+    if (!selection || selection.trim().length === 0) {
+      vscode.window.showWarningMessage('No text selected or selection is empty');
+      return;
+    }
+
+    const LARGE_SELECTION_THRESHOLD = 100000;
+    if (selection.length > LARGE_SELECTION_THRESHOLD) {
+      const proceed = await vscode.window.showWarningMessage(
+        `You have selected ${selection.length.toLocaleString()} characters. This may take a while. Continue?`,
+        'Continue',
+        'Cancel'
+      );
+      if (proceed !== 'Continue') {
+        return;
+      }
+      logger.warn(`Processing large selection: ${selection.length} characters`);
+    }
+
+    try {
+      const config = configService.getConfig();
+      const result = crystallizeEngine.generateDiplomat(selection, config);
+      await ViewManager.openMarkdown(result);
+      logger.info('Crystallize Diplomat completed successfully');
+    } catch (error) {
+      logger.error('Crystallize Diplomat failed', error instanceof Error ? error : new Error(String(error)));
+      vscode.window.showErrorMessage('Crystallize Diplomat failed. Check logs for details.');
     }
   });
 
@@ -259,6 +340,8 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     initConfigCommand,
     crystallizeCommand,
+    crystallizeSpecCommand,
+    crystallizeDiplomatCommand,
     architectCommand,
     verifyCommand,
     compareSelectionsCommand,

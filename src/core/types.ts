@@ -1,10 +1,12 @@
 import type { SuperPromptConfig } from '../config/defaults';
+import type { TextAnalysisResult } from './text-analysis/types';
 
 /**
  * Shared types and interfaces for Nordic Prompt Architect
  */
 
 export type Config = SuperPromptConfig;
+export type { TextAnalysisResult };
 
 export interface SanitizerResult {
   masked: string;

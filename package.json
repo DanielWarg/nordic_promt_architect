@@ -11,6 +11,8 @@
   ],
   "activationEvents": [
     "onCommand:superprompt.crystallize",
+    "onCommand:superprompt.crystallizeSpec",
+    "onCommand:superprompt.crystallizeDiplomat",
     "onCommand:superprompt.architect",
     "onCommand:superprompt.verify",
     "onCommand:superprompt.initConfig",
@@ -23,6 +25,14 @@
       {
         "command": "superprompt.crystallize",
         "title": "Crystallize: Transform vague text to technical spec"
+      },
+      {
+        "command": "superprompt.crystallizeSpec",
+        "title": "Crystallize: Generate Tech Spec"
+      },
+      {
+        "command": "superprompt.crystallizeDiplomat",
+        "title": "Crystallize: Generate Diplomatic Reply"
       },
       {
         "command": "superprompt.architect",
