@@ -1,0 +1,89 @@
+{
+  "name": "nordic-prompt-architect",
+  "displayName": "Nordic Prompt Architect",
+  "description": "Communication Firewall and Infrastructure Tool for DevOps teams - Offline-first, GDPR-compatible code sanitization",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:superprompt.crystallize",
+    "onCommand:superprompt.architect",
+    "onCommand:superprompt.verify",
+    "onCommand:superprompt.initConfig",
+    "onCommand:superprompt.compareSelections",
+    "onCommand:superprompt.analyzeSafety"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "superprompt.crystallize",
+        "title": "Crystallize: Transform vague text to technical spec"
+      },
+      {
+        "command": "superprompt.architect",
+        "title": "Architect: Sanitize code and wrap in prompt template"
+      },
+      {
+        "command": "superprompt.verify",
+        "title": "Verify: Generate checklist from spec"
+      },
+      {
+        "command": "superprompt.initConfig",
+        "title": "Initialize .superpromptrc: Create default configuration file"
+      },
+      {
+        "command": "superprompt.compareSelections",
+        "title": "Architect: Compare two selections"
+      },
+      {
+        "command": "superprompt.analyzeSafety",
+        "title": "Analyze Safety: Dry-run sanitizer on selection"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "superprompt.crystallize",
+        "key": "alt+shift+c",
+        "mac": "alt+shift+c"
+      },
+      {
+        "command": "superprompt.architect",
+        "key": "alt+shift+a",
+        "mac": "alt+shift+a"
+      },
+      {
+        "command": "superprompt.verify",
+        "key": "alt+shift+v",
+        "mac": "alt+shift+v"
+      },
+      {
+        "command": "superprompt.compareSelections",
+        "key": "alt+shift+d",
+        "mac": "alt+shift+d"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "minimatch": "^10.1.1"
+  },
+  "devDependencies": {
+    "@types/minimatch": "^5.1.2",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
