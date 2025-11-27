@@ -7,6 +7,7 @@ import { Sanitizer } from './security/Sanitizer';
 import { CrystallizeEngine } from './core/CrystallizeEngine';
 import { ArchitectEngine } from './core/ArchitectEngine';
 import { VerifyEngine } from './core/VerifyEngine';
+import { CompareAnalyzer } from './core/text-analysis/CompareAnalyzer';
 
 /**
  * Activate extension
@@ -20,6 +21,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const crystallizeEngine = new CrystallizeEngine(logger);
   const architectEngine = new ArchitectEngine();
   const verifyEngine = new VerifyEngine();
+  const compareAnalyzer = new CompareAnalyzer();
 
   handleFirstRun(context, configService, logger);
   logger.info('Nordic Prompt Architect activated');
@@ -270,33 +272,74 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     try {
-      const content = [
-        '# TEKNISK ANALYS – JÄMFÖRELSE',
-        '',
-        '## Skillnader och fokus',
-        '- [Fyll i skillnader här]',
-        '',
-        '## Version A',
-        '',
-        '```text',
-        firstText,
-        '```',
-        '',
-        '---',
-        '',
-        '## Version B',
-        '',
-        '```text',
-        secondText,
-        '```',
-        '',
-        '---',
-        '',
-        '## Rekommenderad riktning',
-        '',
-        '- [Fyll i rekommendation här]',
-        ''
-      ].join('\n');
+      const config = configService.getConfig();
+      const analysis = compareAnalyzer.analyzeCompare(firstText, secondText, config);
+      
+      const lang = config.project.language === 'en' ? 'en' : 'sv';
+      const isSv = lang === 'sv';
+
+      // Build markdown content with analysis
+      const contentLines: string[] = [];
+
+      // Header
+      contentLines.push(isSv ? '# TEKNISK ANALYS – JÄMFÖRELSE' : '# TECHNICAL ANALYSIS – COMPARISON');
+      contentLines.push('');
+
+      // Summaries
+      contentLines.push('## ' + (isSv ? 'Sammanfattning' : 'Summary'));
+      contentLines.push('');
+      contentLines.push('**' + (isSv ? 'Version A' : 'Version A') + ':**');
+      contentLines.push(analysis.summaryA);
+      contentLines.push('');
+      contentLines.push('**' + (isSv ? 'Version B' : 'Version B') + ':**');
+      contentLines.push(analysis.summaryB);
+      contentLines.push('');
+
+      // Main differences
+      contentLines.push('## ' + (isSv ? 'Skillnader och fokus' : 'Differences and Focus'));
+      contentLines.push('');
+      for (const diff of analysis.mainDifferences) {
+        contentLines.push(`- ${diff}`);
+      }
+      contentLines.push('');
+
+      // Risk notes if any
+      if (analysis.riskNotes.length > 0) {
+        contentLines.push('## ' + (isSv ? 'Riskmedvetenhet' : 'Risk Awareness'));
+        contentLines.push('');
+        for (const risk of analysis.riskNotes) {
+          contentLines.push(`- ${risk}`);
+        }
+        contentLines.push('');
+      }
+
+      // Version A text block
+      contentLines.push('## ' + (isSv ? 'Version A' : 'Version A'));
+      contentLines.push('');
+      contentLines.push('```text');
+      contentLines.push(firstText);
+      contentLines.push('```');
+      contentLines.push('');
+      contentLines.push('---');
+      contentLines.push('');
+
+      // Version B text block
+      contentLines.push('## ' + (isSv ? 'Version B' : 'Version B'));
+      contentLines.push('');
+      contentLines.push('```text');
+      contentLines.push(secondText);
+      contentLines.push('```');
+      contentLines.push('');
+      contentLines.push('---');
+      contentLines.push('');
+
+      // Recommended direction
+      contentLines.push('## ' + (isSv ? 'Rekommenderad riktning' : 'Recommended Direction'));
+      contentLines.push('');
+      contentLines.push(analysis.recommendedDirection);
+      contentLines.push('');
+
+      const content = contentLines.join('\n');
 
       await ViewManager.openMarkdown(content);
       logger.info('Compare Selections completed successfully');

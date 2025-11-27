@@ -24,3 +24,11 @@ export interface EngineResult {
   metadata?: Record<string, unknown>;
 }
 
+export interface CompareAnalysisResult {
+  summaryA: string;
+  summaryB: string;
+  mainDifferences: string[];
+  riskNotes: string[];
+  recommendedDirection: string;
+}
+
