@@ -184,12 +184,6 @@ export function getDiplomatMarkdown(
   const lang = config.project.language;
   const isSv = lang === 'sv';
 
-  // Enkel hjälpfunktion för listor
-  const list = (items: string[]) =>
-    items.length > 0
-      ? items.map(i => `- ${i}`).join('\n')
-      : (isSv ? '- Inga specifika punkter identifierade.' : '- No specific items identified.');
-
   // Bygg upp "missing info" här (fanns inte i analysis)
   const missingInfo: string[] = [];
   if (analysis.deadlines.length === 0) {
@@ -229,12 +223,9 @@ export function getDiplomatMarkdown(
     ? 'Jag har granskat önskemålet. För att säkerställa korrekt leverans och undvika omarbete behöver några punkter förtydligas.'
     : 'I have reviewed the request. To ensure correct delivery and avoid rework, several points need clarification.';
 
-  const blockersText =
-    analysis.blockers.length > 0
-      ? list(analysis.blockers)
-      : (isSv
-          ? 'Vi ser inga tydliga tekniska hinder just nu, men beskrivningen är för vag för att kunna estimeras.'
-          : 'We do not currently see explicit technical blockers, but the description is too vague to estimate.');
+  const blockersText = (isSv
+    ? `- Inga tekniska hinder kan identifieras utifrån nuvarande beskrivning.\n- Dock är kravet för vagt för att kunna estimeras eller planeras.`
+    : `- No technical blockers can be identified based on the current description.\n- However, the requirement is too vague to be estimated or planned.`);
 
   const clarificationList =
     missingInfo.length > 0
