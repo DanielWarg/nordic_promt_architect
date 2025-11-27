@@ -1,6 +1,5 @@
 import type { Config, SanitizerResult, TextAnalysisResult } from '../core/types';
 import type { SuperPromptConfig } from '../config/defaults';
-import { getHeaders, getTexts } from './system';
 import { systemHeaders, systemTexts } from './system';
 
 /**
@@ -34,86 +33,144 @@ ${sanitizedCode}
 }
 
 /**
- * Generate Tech Spec markdown template with Clarity Score
+ * Generate Tech Spec markdown template with Clarity Score (soft-professional tone)
  */
 export function getTechSpecMarkdown(
   input: string,
   analysis: TextAnalysisResult,
   config: SuperPromptConfig
 ): string {
-  const language = config.project.language === 'en' ? 'en' : 'sv';
-  const headers = getHeaders(language);
-  const texts = getTexts(language);
+  const lang = config.project.language === 'en' ? 'en' : 'sv';
 
-  // Clarity score emoji indicator
-  let scoreEmoji = '🟡';
-  if (analysis.clarityScore > 80) {
-    scoreEmoji = '🟢';
-  } else if (analysis.clarityScore < 50) {
-    scoreEmoji = '🔴';
-  }
+  const emoji =
+    analysis.clarityScore > 80 ? '🟢' :
+    analysis.clarityScore > 50 ? '🟡' :
+    '🔴';
 
-  // Build feedback section
-  let feedbackSection = '';
-  if (analysis.clarityFeedback.length > 0) {
-    const feedbackItems = analysis.clarityFeedback.map((f) => `- ${f}`).join('\n');
-    feedbackSection = `\n### Feedback:\n${feedbackItems}\n`;
-  }
+  const titles = {
+    sv: {
+      main: '🔬 TEKNISK SPECIFIKATION',
+      health: '## 📊 Kravhälsa',
+      feedback: '### Feedback (för att förtydliga kravet)',
+      context: '# KONTEXT',
+      blockers: '# BLOCKERARE',
+      risks: '# RISKER',
+      tech: '# TEKNISKA BEROENDEN',
+      ac: '# ACCEPTANCE CRITERIA',
+      noBlockers: 'Inga identifierade blockerare.',
+      noRisks: 'Inga identifierade risker.',
+      noTech: 'Inga specifika tekniska beroenden identifierade.',
+      noFeedback: 'Inga särskilda förbättringsförslag – kravet ser tydligt ut.',
+      inputHeader: '## Originalinput',
+    },
+    en: {
+      main: '🔬 TECHNICAL SPECIFICATION',
+      health: '## 📊 Requirement Health',
+      feedback: '### Feedback (to make the requirement clearer)',
+      context: '# CONTEXT',
+      blockers: '# BLOCKERS',
+      risks: '# RISKS',
+      tech: '# TECHNICAL DEPENDENCIES',
+      ac: '# ACCEPTANCE CRITERIA',
+      noBlockers: 'No blockers identified.',
+      noRisks: 'No risks explicitly identified.',
+      noTech: 'No specific technical dependencies identified.',
+      noFeedback: 'No particular suggestions – the requirement looks clear.',
+      inputHeader: '## Original Input',
+    },
+  }[lang];
 
-  // Build blockers section
-  let blockersSection = '';
-  if (analysis.blockers.length > 0) {
-    const blockerItems = analysis.blockers.map((b) => `- ${b}`).join('\n');
-    blockersSection = `\n${headers.blockers}\n${blockerItems}\n`;
-  } else {
-    blockersSection = `\n${headers.blockers}\n${texts.noBlockers}\n`;
-  }
+  const feedbackLines = analysis.clarityFeedback?.length
+    ? analysis.clarityFeedback.map(f => `- ${f}`).join('\n')
+    : `- ${titles.noFeedback}`;
 
-  // Build risks section
-  let risksSection = '';
-  if (analysis.risks.length > 0) {
-    const riskItems = analysis.risks.map((r) => `- ${r}`).join('\n');
-    risksSection = `\n${headers.risks}\n${riskItems}\n`;
-  } else {
-    risksSection = `\n${headers.risks}\n${texts.noRisks}\n`;
-  }
+  const blockers =
+    analysis.blockers.length
+      ? analysis.blockers.map(b => `- ${b}`).join('\n')
+      : titles.noBlockers;
 
-  // Build technical dependencies section
-  let techDepsSection = '';
-  if (analysis.technicalTerms.length > 0) {
-    const techItems = analysis.technicalTerms.map((t) => `- ${t}`).join('\n');
-    techDepsSection = `\n${headers.technicalDependencies}\n${techItems}\n`;
-  } else {
-    techDepsSection = `\n${headers.technicalDependencies}\n${texts.noTechDependencies}\n`;
-  }
+  const risks =
+    analysis.risks.length
+      ? analysis.risks.map(r => `- ${r}`).join('\n')
+      : titles.noRisks;
 
-  // Acceptance Criteria template (structured skeleton)
-  const acTemplate = language === 'sv'
-    ? '- [ ] [Krav 1 - beskriv funktionalitet]\n- [ ] [Krav 2 - beskriv prestanda]\n- [ ] [Krav 3 - beskriv säkerhet]'
-    : '- [ ] [Requirement 1 - describe functionality]\n- [ ] [Requirement 2 - describe performance]\n- [ ] [Requirement 3 - describe security]';
+  const techDeps =
+    analysis.technicalTerms.length
+      ? analysis.technicalTerms.map(t => `- ${t}`).join('\n')
+      : titles.noTech;
 
-  return `🔬 TECHNICAL SPECIFICATION
+  const acSkeleton =
+    lang === 'sv'
+      ? [
+          '- [ ] [Krav 1 – beskriv funktionalitet]',
+          '- [ ] [Krav 2 – beskriv prestanda]',
+          '- [ ] [Krav 3 – beskriv säkerhet]',
+        ].join('\n')
+      : [
+          '- [ ] [Requirement 1 – describe functionality]',
+          '- [ ] [Requirement 2 – describe performance]',
+          '- [ ] [Requirement 3 – describe security]',
+        ].join('\n');
 
-## 📊 Requirement Health: ${analysis.clarityScore}% ${scoreEmoji}${feedbackSection}
+  return `
+${titles.main}
 
-${headers.context}
-${analysis.context}
 
-${blockersSection}
 
-${risksSection}
+${titles.health}: ${analysis.clarityScore}% ${emoji}
 
-${techDepsSection}
 
-${headers.acceptanceCriteria}
-${acTemplate}
+
+${titles.feedback}
+${feedbackLines}
+
+
+
+
+
+${titles.context}
+${analysis.context || (lang === 'sv'
+  ? 'En övergripande beskrivning av kravet saknas – använd gärna denna sektion för att sammanfatta syftet.'
+  : 'An overall description of the requirement is missing – use this section to summarise the goal.'
+)}
+
+
+
+
+
+${titles.blockers}
+${blockers}
+
+
+
+
+
+${titles.risks}
+${risks}
+
+
+
+
+
+${titles.tech}
+${techDeps}
+
+
+
+
+
+${titles.ac}
+${acSkeleton}
+
+
 
 ---
-## Original Input
+
+${titles.inputHeader}
 \`\`\`
-${input}
+${input.trim()}
 \`\`\`
-`;
+  `.trim();
 }
 
 /**
@@ -127,28 +184,28 @@ export function getDiplomatMarkdown(
   const lang = config.project.language === 'en' ? 'en' : 'sv';
 
   const greetings = {
-    sv: "Hej,",
-    en: "Hello,",
+    sv: 'Hej,',
+    en: 'Hello,',
   };
 
   const understandingHeader = {
-    sv: "### Nuvarande förståelse",
-    en: "### Current Understanding",
+    sv: '### Nuvarande förståelse',
+    en: '### Current Understanding',
   };
 
   const blockersHeader = {
-    sv: "### Identifierade blockerare",
-    en: "### Identified Blockers",
+    sv: '### Identifierade blockerare',
+    en: '### Identified Blockers',
   };
 
   const clarificationHeader = {
-    sv: "### Förtydliganden som vore hjälpsamma",
-    en: "### Clarifications That Would Be Helpful",
+    sv: '### Förtydliganden som vore hjälpsamma',
+    en: '### Clarifications That Would Be Helpful',
   };
 
   const nextStepsHeader = {
-    sv: "### Nästa steg",
-    en: "### Next Steps",
+    sv: '### Nästa steg',
+    en: '### Next Steps',
   };
 
   const closing = {
@@ -156,71 +213,113 @@ export function getDiplomatMarkdown(
     en: `\n---\n\nBest regards,\n${config.templates.role}`,
   };
 
-  // Build clarification list (soft tone)
+  const noItems = lang === 'sv'
+    ? 'Inga specifika punkter identifierade.'
+    : 'No specific items identified.';
+
+  // Build clarifications in a soft–professional tone
   const clarifications: string[] = [];
 
   if (!analysis.deadlines.length) {
     clarifications.push(
       lang === 'sv'
-        ? "Det vore värdefullt att veta om det finns någon deadline eller tidsram att förhålla sig till."
-        : "It would be helpful to know if there is a deadline or timeline to consider."
+        ? 'Det vore värdefullt att veta om det finns någon deadline eller tidsram att förhålla sig till.'
+        : 'It would be helpful to know if there is a deadline or timeline to consider.'
     );
   }
 
   if (analysis.ambiguousTerms.length) {
-    const vague = analysis.ambiguousTerms.join(", ");
+    const vague = analysis.ambiguousTerms.join(', ');
     clarifications.push(
       lang === 'sv'
-        ? `För att undvika missförstånd vore det hjälpsamt att få lite mer detaljer kring uttryck som: ${vague}.`
-        : `To avoid misunderstandings, it would be helpful to get more detail around terms like: ${vague}.`
+        ? `För att undvika missförstånd vore det hjälpsamt att få lite mer detaljer kring formuleringar som: ${vague}.`
+        : `To avoid misunderstandings, it would be helpful to get a bit more detail around terms such as: ${vague}.`
     );
   }
 
   if (!analysis.technicalTerms.length) {
     clarifications.push(
       lang === 'sv'
-        ? "Det vore bra att veta om någon specifik teknisk plattform eller lösning är önskad."
-        : "It would be useful to know if a specific platform or technical solution is preferred."
+        ? 'Det vore bra att veta om någon specifik teknisk plattform eller lösning är önskad.'
+        : 'It would be useful to know if any specific platform or technical solution is preferred.'
     );
   }
 
-  const noData = lang === 'sv' ? "Inga specifika punkter identifierade." : "No specific items identified.";
+  const contextLine =
+    analysis.context ||
+    (lang === 'sv'
+      ? 'Jag vill säkerställa att jag har förstått syftet med förändringen på rätt sätt.'
+      : 'I want to ensure I have correctly understood the purpose of this change.');
+
+  const blockersSection =
+    analysis.blockers.length
+      ? analysis.blockers.map(b => `- ${b}`).join('\n')
+      : `- ${noItems}`;
+
+  const clarificationsSection =
+    clarifications.length
+      ? clarifications.map(c => `- ${c}`).join('\n')
+      : `- ${noItems}`;
+
+  const nextStepsSection =
+    lang === 'sv'
+      ? [
+          '- När ovanstående är tydliggjort kan jag ta fram en mer komplett teknisk specifikation.',
+          '- Därefter kan vi planera implementation och tidslinje.',
+          '- Jag återkopplar så snart vi har de saknade detaljerna.',
+        ].join('\n')
+      : [
+          '- Once the points above are clarified, I can prepare a more complete technical specification.',
+          '- After that, we can plan implementation and timeline.',
+          '- I will follow up as soon as we have the missing details.',
+        ].join('\n');
 
   return `
-✉️ ${lang === 'sv' ? "UTKAST FÖR DIALOG MED STAKEHOLDER" : "STAKEHOLDER REPLY DRAFT"}
+✉️ ${lang === 'sv'
+  ? 'UTKAST FÖR DIALOG MED STAKEHOLDER'
+  : 'STAKEHOLDER REPLY DRAFT'
+}
+
+
 
 ${greetings[lang]}
 
+
+
 ${understandingHeader[lang]}
 
+
+
 ${lang === 'sv'
-  ? `Baserat på din input uppfattar jag att: ${analysis.context}`
-  : `Based on your input, my understanding is that: ${analysis.context}`
+  ? `Baserat på din beskrivning uppfattar jag att: ${contextLine}`
+  : `Based on your description, my current understanding is that: ${contextLine}`
 }
+
+
 
 ${blockersHeader[lang]}
 
-${
-  analysis.blockers.length
-    ? analysis.blockers.map(b => `- ${b}`).join("\n")
-    : `- ${noData}`
-}
+
+
+${blockersSection}
+
+
 
 ${clarificationHeader[lang]}
 
-${
-  clarifications.length
-    ? clarifications.map(c => `- ${c}`).join("\n")
-    : `- ${noData}`
-}
+
+
+${clarificationsSection}
+
+
 
 ${nextStepsHeader[lang]}
 
-${
-  lang === 'sv'
-    ? `- När ovanstående är tydliggjort kan jag ta fram en mer komplett teknisk specifikation.\n- Därefter kan vi planera implementation och tidslinje.\n- Jag återkopplar så snart vi har de saknade detaljerna.`
-    : `- Once the points above are clarified, I can prepare a more complete technical specification.\n- After that, we can plan implementation and timeline.\n- I will follow up as soon as we have the missing details.`
-}
+
+
+${nextStepsSection}
+
+
 
 ${closing[lang]}
   `.trim();
