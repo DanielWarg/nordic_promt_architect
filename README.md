@@ -85,7 +85,9 @@ Kör `superprompt.analyzeSafety` för att få counts/loggar utan att ändra text
 
 # 4. Konfiguration (.superpromptrc.json)
 
-Skapa snabbt via “Initialize .superpromptrc”. Exempel:
+Skapa snabbt via "Initialize .superpromptrc" eller kopiera från `.superpromptrc.example.json` i repot.
+
+Exempel:
 
 ```json
 {
@@ -267,7 +269,7 @@ Generera checklist från spec för manuell verifiering:
 Kör kommandot "Initialize .superpromptrc" från Command Palette för att automatiskt skapa en konfigurationsfil med defaults.
 
 ### Manuell konfiguration
-Skapa `.superpromptrc.json` i workspace root:
+Kopiera `.superpromptrc.example.json` till `.superpromptrc.json` i workspace root och justera efter behov, eller skapa manuellt:
 
 ```json
 {

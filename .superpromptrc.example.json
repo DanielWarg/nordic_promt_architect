@@ -1,0 +1,31 @@
+{
+  "project": {
+    "name": "My Project Name",
+    "language": "sv",
+    "environment": "node-typescript"
+  },
+  "security": {
+    "mode": "STRICT",
+    "mask_patterns": [
+      "se_personnummer",
+      "email",
+      "phone",
+      "ipv4",
+      "ipv6",
+      "api_key_openai",
+      "api_key_aws",
+      "api_key_bearer"
+    ],
+    "exclude_paths": [
+      "**/tests/**",
+      "**/*.spec.ts",
+      "**/mocks/**",
+      "**/fixtures/**",
+      "dist/**"
+    ]
+  },
+  "templates": {
+    "role": "Senior DevOps Engineer"
+  }
+}
+
