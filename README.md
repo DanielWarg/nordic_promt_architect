@@ -163,7 +163,7 @@ npm run watch
 
 # 9. Licens & Contributing
 
-Licens: MIT  
+Licens: Dual Licensing (MIT för Community Edition, Commercial för Pro/Enterprise)  
 
 Bidrag:
 - Följ “Zero Magic / Total Control”  
@@ -309,9 +309,25 @@ npm run compile
 npm run watch  # För kontinuerlig kompilering
 ```
 
-## License
+## Licensing
 
-MIT
+Nordic Prompt Architect använder **dual licensing**:
+
+### Community Edition (VS Code Extension)
+
+Licens: MIT
+
+Denna version är gratis, öppen och helt lokal/offline.
+
+### Pro & Enterprise Edition
+
+Licens: Commercial Proprietary
+
+Premiumfunktioner (t.ex. avancerad sanitization, enterprise policies,
+centrala team-templates, hosted API-tjänster) ingår i Pro/Enterprise och får
+inte spridas, forkas eller återanvändas utan avtal.
+
+Se `LICENSE`, `COMMERCIAL_LICENSE` och `LICENSE_OVERVIEW.md` för detaljer.
 
 ## Contributing
 
