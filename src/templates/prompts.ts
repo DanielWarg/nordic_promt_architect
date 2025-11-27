@@ -214,11 +214,14 @@ export function getDiplomatMarkdown(
   };
 
   // Build context for summary
-  const contextLine =
-    analysis.context ||
-    (lang === 'sv'
-      ? 'Jag har tagit emot önskemålet. Som det är formulerat nu är det för brett för att vi ska kunna estimera eller planera arbetet.'
-      : 'I have received the request. As currently formulated, it is too broad for us to estimate or plan the work.');
+  const summaryText =
+    analysis.context
+      ? (lang === 'sv'
+          ? `Jag har mottagit önskemålet gällande ${analysis.context}. Som det är formulerat nu är omfattningen för otydlig för att lägga in i sprinten.`
+          : `I have received the request regarding ${analysis.context}. As currently formulated, the scope is too unclear to include in the sprint.`)
+      : (lang === 'sv'
+          ? 'Jag har mottagit önskemålet. Som det är formulerat nu är omfattningen för otydlig för att lägga in i sprinten.'
+          : 'I have received the request. As currently formulated, the scope is too unclear to include in the sprint.');
 
   // Build blockers list (if any exist, show them after explanation)
   const blockersList =
@@ -274,7 +277,7 @@ export function getDiplomatMarkdown(
   const blockersExplanation =
     lang === 'sv'
       ? 'För att undvika felimplementation och missad förväntan behöver vi ett mer konkret underlag. I nuvarande form är kravet inte tillräckligt definierat för utveckling.'
-      : 'To avoid incorrect implementation and missed expectations, we need more concrete input. In its current form, the requirement is not sufficiently defined for development.';
+      : 'For us to be able to estimate time and start the work, the requirements need to be concretized. Right now, the scope is too unclear to include in the sprint.';
 
   // Build next steps
   const nextStepsSection =
@@ -291,7 +294,7 @@ ${greetings[lang]}
 
 ${summaryHeader[lang]}
 
-${contextLine}
+${summaryText}
 
 ${blockersHeader[lang]}
 
