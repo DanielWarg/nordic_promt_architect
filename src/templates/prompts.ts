@@ -174,7 +174,7 @@ ${input.trim()}
 }
 
 /**
- * Generate Diplomat markdown template (soft-professional email format)
+ * Generate Diplomat markdown template (senior professional tone)
  */
 export function getDiplomatMarkdown(
   _input: string,
@@ -188,19 +188,19 @@ export function getDiplomatMarkdown(
     en: 'Hello,',
   };
 
-  const understandingHeader = {
-    sv: '### Nuvarande förståelse',
-    en: '### Current Understanding',
+  const summaryHeader = {
+    sv: '### Sammanfattning',
+    en: '### Summary',
   };
 
   const blockersHeader = {
-    sv: '### Identifierade blockerare',
-    en: '### Identified Blockers',
+    sv: '### Krav för att kunna starta (Blockers)',
+    en: '### Requirements to Proceed (Blockers)',
   };
 
-  const clarificationHeader = {
-    sv: '### Förtydliganden som vore hjälpsamma',
-    en: '### Clarifications That Would Be Helpful',
+  const questionsHeader = {
+    sv: '### Vi behöver svar på följande:',
+    en: '### We need answers to the following:',
   };
 
   const nextStepsHeader = {
@@ -209,117 +209,101 @@ export function getDiplomatMarkdown(
   };
 
   const closing = {
-    sv: `\n---\n\nHälsningar,\n${config.templates.role}`,
-    en: `\n---\n\nBest regards,\n${config.templates.role}`,
+    sv: `\n---\n\nHälsningar,\n**${config.templates.role}**`,
+    en: `\n---\n\nBest regards,\n**${config.templates.role}**`,
   };
 
-  const noItems = lang === 'sv'
-    ? 'Inga specifika punkter identifierade.'
-    : 'No specific items identified.';
+  // Build context for summary
+  const contextLine =
+    analysis.context ||
+    (lang === 'sv'
+      ? 'Jag har tagit emot önskemålet. Som det är formulerat nu är det för brett för att vi ska kunna estimera eller planera arbetet.'
+      : 'I have received the request. As currently formulated, it is too broad for us to estimate or plan the work.');
 
-  // Build clarifications in a soft–professional tone
-  const clarifications: string[] = [];
+  // Build blockers list (if any exist, show them after explanation)
+  const blockersList =
+    analysis.blockers.length > 0
+      ? `\n\n${analysis.blockers.map(b => `- ${b}`).join('\n')}`
+      : '';
 
-  if (!analysis.deadlines.length) {
-    clarifications.push(
+  // Build questions (senior tone - direct and structured)
+  const questions: string[] = [];
+
+  if (analysis.ambiguousTerms.length > 0) {
+    const vagueTerms = analysis.ambiguousTerms.join(', ');
+    questions.push(
       lang === 'sv'
-        ? 'Det vore värdefullt att veta om det finns någon deadline eller tidsram att förhålla sig till.'
-        : 'It would be helpful to know if there is a deadline or timeline to consider.'
-    );
-  }
-
-  if (analysis.ambiguousTerms.length) {
-    const vague = analysis.ambiguousTerms.join(', ');
-    clarifications.push(
-      lang === 'sv'
-        ? `För att undvika missförstånd vore det hjälpsamt att få lite mer detaljer kring formuleringar som: ${vague}.`
-        : `To avoid misunderstandings, it would be helpful to get a bit more detail around terms such as: ${vague}.`
+        ? `**Målbild:** Följande termer är för subjektiva för utveckling och behöver definieras: ${vagueTerms}. Vad specifikt innebär de?`
+        : `**Goal:** The following terms are too subjective for development and need to be defined: ${vagueTerms}. What do they specifically mean?`
     );
   }
 
   if (!analysis.technicalTerms.length) {
-    clarifications.push(
+    questions.push(
       lang === 'sv'
-        ? 'Det vore bra att veta om någon specifik teknisk plattform eller lösning är önskad.'
-        : 'It would be useful to know if any specific platform or technical solution is preferred.'
+        ? '**Omfattning:** Vad avses exakt? Gäller det en specifik vy, modul eller hela applikationen?'
+        : '**Scope:** What exactly is included? Does it apply to a specific view, module, or the entire application?'
     );
   }
 
-  const contextLine =
-    analysis.context ||
-    (lang === 'sv'
-      ? 'Jag vill säkerställa att jag har förstått syftet med förändringen på rätt sätt.'
-      : 'I want to ensure I have correctly understood the purpose of this change.');
+  if (!analysis.deadlines.length) {
+    questions.push(
+      lang === 'sv'
+        ? '**Deadline:** Finns det en tidplan eller release-constraint att förhålla sig till?'
+        : '**Deadline:** Is there a timeline or release constraint to consider?'
+    );
+  }
 
-  const blockersSection =
-    analysis.blockers.length
-      ? analysis.blockers.map(b => `- ${b}`).join('\n')
-      : `- ${noItems}`;
+  // Always add measurability question if ambiguous terms exist
+  if (analysis.ambiguousTerms.length > 0) {
+    questions.push(
+      lang === 'sv'
+        ? '**Mätbarhet:** Hur vet vi när vi är klara? Subjektiva termer som "snyggare" eller "bättre" är inte testbara krav.'
+        : '**Measurability:** How do we know when we are done? Subjective terms like "nicer" or "better" are not testable requirements.'
+    );
+  }
 
-  const clarificationsSection =
-    clarifications.length
-      ? clarifications.map(c => `- ${c}`).join('\n')
-      : `- ${noItems}`;
+  const questionsSection =
+    questions.length > 0
+      ? questions.map((q, idx) => `${idx + 1}. ${q}`).join('\n\n')
+      : (lang === 'sv'
+          ? 'Alla nödvändiga detaljer verkar vara på plats.'
+          : 'All necessary details appear to be in place.');
 
+  // Build blockers explanation
+  const blockersExplanation =
+    lang === 'sv'
+      ? 'För att undvika felimplementation och missad förväntan behöver vi ett mer konkret underlag. I nuvarande form är kravet inte tillräckligt definierat för utveckling.'
+      : 'To avoid incorrect implementation and missed expectations, we need more concrete input. In its current form, the requirement is not sufficiently defined for development.';
+
+  // Build next steps
   const nextStepsSection =
     lang === 'sv'
-      ? [
-          '- När ovanstående är tydliggjort kan jag ta fram en mer komplett teknisk specifikation.',
-          '- Därefter kan vi planera implementation och tidslinje.',
-          '- Jag återkopplar så snart vi har de saknade detaljerna.',
-        ].join('\n')
-      : [
-          '- Once the points above are clarified, I can prepare a more complete technical specification.',
-          '- After that, we can plan implementation and timeline.',
-          '- I will follow up as soon as we have the missing details.',
-        ].join('\n');
+      ? `När vi har dessa svar kan jag ta fram ett konkret tekniskt förslag samt estimera arbetet.\n\nTills vidare markerar jag detta som **Needs Clarification**.`
+      : `Once we have these answers, I can prepare a concrete technical proposal and estimate the work.\n\nFor now, I am marking this as **Needs Clarification**.`;
 
   return `
 ✉️ ${lang === 'sv'
   ? 'UTKAST FÖR DIALOG MED STAKEHOLDER'
-  : 'STAKEHOLDER REPLY DRAFT'
-}
-
-
+  : 'STAKEHOLDER REPLY DRAFT'}
 
 ${greetings[lang]}
 
+${summaryHeader[lang]}
 
-
-${understandingHeader[lang]}
-
-
-
-${lang === 'sv'
-  ? `Baserat på din beskrivning uppfattar jag att: ${contextLine}`
-  : `Based on your description, my current understanding is that: ${contextLine}`
-}
-
-
+${contextLine}
 
 ${blockersHeader[lang]}
 
+${blockersExplanation}${blockersList}
 
+${questionsHeader[lang]}
 
-${blockersSection}
-
-
-
-${clarificationHeader[lang]}
-
-
-
-${clarificationsSection}
-
-
+${questionsSection}
 
 ${nextStepsHeader[lang]}
 
-
-
 ${nextStepsSection}
-
-
 
 ${closing[lang]}
   `.trim();
