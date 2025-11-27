@@ -1,174 +1,173 @@
-Nordic Prompt Architect — Master Roadmap
+# Nordic Prompt Architect — Master Roadmap
 
-Denna roadmap beskriver resan från fungerande MVP till “Enterprise Gold Standard”.
-Allt här ingår i den långsiktiga backloggen och bygger på de tre kärnmotorerna: Crystallize, Architect och Verify.
+This roadmap describes the journey from working MVP to "Enterprise Gold Standard".
+Everything here is part of the long-term backlog and builds on the three core engines: Crystallize, Architect, and Verify.
 
-🏁 Fas 1: Core Foundation — Stabilisering av MVP
+🏁 Phase 1: Core Foundation — MVP Stabilization
 
-Mål: En robust, förutsägbar och kraschsäker grund.
+Goal: A robust, predictable, and crash-safe foundation.
 
 - [x] **Robust Config Loader**  
-  - [x] Extensionen ska läsa .superpromptrc.json automatiskt vid start  
-  - [x] Hot Reload: uppdateringar av config-filen ska läsas utan att VS Code startas om  
-  - [x] Fallback till säkra default-värden om config saknas eller är korrupt
+  - [x] Extension should read .superpromptrc.json automatically on startup  
+  - [x] Hot Reload: config file updates should be read without restarting VS Code  
+  - [x] Fallback to safe default values if config is missing or corrupt
 
-- [x] **Transparent Logging — “The Trust Layer”**  
-  - [x] Ny Output-kanal: “Nordic Prompt Logs”  
-  - [x] Logga allt: config loaded, sanitizer startad, patterns hittade, template applicerad  
-  - [x] Tidsstämplar och prestandamått: “Sanitization completed in 12ms”
+- [x] **Transparent Logging — "The Trust Layer"**  
+  - [x] New Output channel: "Nordic Prompt Logs"  
+  - [x] Log everything: config loaded, sanitizer started, patterns found, template applied  
+  - [x] Timestamps and performance metrics: "Sanitization completed in 12ms"
 
 - [x] **Error Handling & Graceful Degradation**  
-  - [x] Extensionen får aldrig krascha hårt  
-  - [x] Fel loggas tyst i output-kanalen (logger.error + VS Code warning)  
-  - [x] Användaren ser endast varningar vid kritiska hinder
+  - [x] Extension must never crash hard  
+  - [x] Errors logged quietly in output channel (logger.error + VS Code warning)  
+  - [x] User only sees warnings for critical obstacles
 - [x] **First Run Experience / Onboarding**  
-  - [x] Visa installationsnotis som instruerar att köra `SuperPrompt: Initialize Config`  
-  - [x] Init-kommandot skapar `.superpromptrc.json` med säkra defaults och loggar resultatet  
-  - [x] Safe defaults när config saknas + tydlig loggrad “No .superpromptrc.json found. Using secure defaults.”
+  - [x] Show installation notice instructing to run `SuperPrompt: Initialize Config`  
+  - [x] Init command creates `.superpromptrc.json` with safe defaults and logs result  
+  - [x] Safe defaults when config is missing + clear log message "No .superpromptrc.json found. Using secure defaults."
 - [x] **Core Commands & UX Flow**  
-  - [x] `superprompt.initConfig` skapar config och logger info  
-  - [x] `superprompt.crystallize` genererar specs i split view  
-  - [x] `superprompt.architect` sanitizerar kod och öppnar prompt-output  
-  - [x] `superprompt.verify` producerar checklista  
-  - [x] `superprompt.compareSelections` jämför två markeringar och genererar rapport
+  - [x] `superprompt.initConfig` creates config and logs info  
+  - [x] `superprompt.crystallize` generates specs in split view  
+  - [x] `superprompt.architect` sanitizes code and opens prompt output  
+  - [x] `superprompt.verify` produces checklist  
+  - [x] `superprompt.compareSelections` compares two selections and generates report
 
-🛡️ Fas 2: Security Engine — Sanitizer v2
+🛡️ Phase 2: Security Engine — Sanitizer v2
 
-Mål: “Säkerhetschefen ska älska detta.”
+Goal: "The security chief should love this."
 
-- [x] **Utökad datasäkerhetsdetektion**  
-  - [x] Svenska personnummer (alla format)  
-  - [x] E-postadresser  
-  - [x] Telefonnummer  
-  - [x] IP-adresser (IPv4/IPv6)  
-  - [x] API-nycklar (OpenAI, AWS, Stripe, generic Bearer tokens)
+- [x] **Extended Data Security Detection**  
+  - [x] Swedish personal numbers (all formats)  
+  - [x] Email addresses  
+  - [x] Phone numbers  
+  - [x] IP addresses (IPv4/IPv6)  
+  - [x] API keys (OpenAI, AWS, Stripe, generic Bearer tokens)
 
-- [x] **Token-baserad maskering**  
+- [x] **Token-based Masking**  
   - [x] <PNR_REDACTED>  
   - [x] <EMAIL_HIDDEN>  
   - [x] <API_KEY_SECURED>
 
 - [x] **Dry-Run Mode (SuperPrompt: Analyze Safety Only)**  
-  - [x] Kör analys utan prompt  
-  - [x] Skriver rapport i loggen  
-  - [x] Ändrar inget innehåll
+  - [x] Run analysis without prompt  
+  - [x] Writes report in log  
+  - [x] Does not modify content
 - [x] **Exclude Paths / Ignore Files**  
-  - [x] Ny `security.exclude_paths`-nyckel i `.superpromptrc.json` (t.ex. `**/tests/**`, `mocks/**`)  
-  - [x] Sanitizer hoppar över dessa paths helt utan maskning eller varningar  
-  - [x] Dokumentera default-lista och hur den kan utökas
+  - [x] New `security.exclude_paths` key in `.superpromptrc.json` (e.g., `**/tests/**`, `mocks/**`)  
+  - [x] Sanitizer completely skips these paths without masking or warnings  
+  - [x] Document default list and how it can be extended
 
-💎 Fas 3: Crystallize Engine — Kravhantering v2
+💎 Phase 3: Crystallize Engine — Requirements Management v2
 
-Mål: Gör vag text till hård, teknisk specifikation.
+Goal: Turn vague text into hard, technical specifications.
 
-- [ ] **The “Tech Spec” Template**  
-  - [ ] Kontext  
+- [ ] **The "Tech Spec" Template**  
+  - [ ] Context  
   - [ ] Blockers  
-  - [ ] Risker  
+  - [ ] Risks  
   - [ ] Acceptance Criteria  
-  - [ ] Tekniska beroenden
+  - [ ] Technical dependencies
 
-- [ ] **The “Diplomat” Template**  
-  - [ ] “Detta är nästa steg”  
-  - [ ] “Detta blockerar oss”  
-  - [ ] “Föreslagen lösning”
+- [ ] **The "Diplomat" Template**  
+  - [ ] "This is the next step"  
+  - [ ] "This blocks us"  
+  - [ ] "Proposed solution"
 
-- [ ] **Kommando: SuperPrompt – Crystallize Requirements**  
-  - [ ] Appliceras på markerad text  
-  - [ ] Output i split view
+- [ ] **Command: SuperPrompt – Crystallize Requirements**  
+  - [ ] Applied to selected text  
+  - [ ] Output in split view
 
-🏗️ Fas 4: Architect Engine — Kod & Promptdesign
+🏗️ Phase 4: Architect Engine — Code & Prompt Design
 
-Mål: Få juniorer att skriva seniora prompter och kodspecar.
+Goal: Get juniors to write senior prompts and code specs.
 
 - [ ] **Context-Wrapping Framework**  
-  - [ ] Persona-baserade mallar (Senior TS-arkitekt m.fl.)  
-  - [ ] Strikt best practice-instruktioner
+  - [ ] Persona-based templates (Senior TS architect, etc.)  
+  - [ ] Strict best practice instructions
 
 - [ ] **Language Awareness**  
   - [ ] TS / JS  
   - [ ] Python  
   - [ ] C#  
   - [ ] Java  
-  - [ ] Språk-specifika instruktioner
+  - [ ] Language-specific instructions
 
 - [ ] **Split View Guarantee**  
-  - [ ] Ny flik  
+  - [ ] New tab  
   - [ ] ViewColumn.Beside  
-  - [ ] Aldrig skriva över originalfil
+  - [ ] Never overwrite original file
 
-✅ Fas 5: Verify Engine — Compliance v1
+✅ Phase 5: Verify Engine — Compliance v1
 
-Mål: Göra kvalitetssäkring automatiserad.
+Goal: Make quality assurance automated.
 
 - [ ] **Definition of Done Generator**  
   - [ ] Acceptance Criteria  
-  - [ ] Testcases  
-  - [ ] Risker  
+  - [ ] Test cases  
+  - [ ] Risks  
   - [ ] Edge Cases
 
-- [ ] **Kommando: SuperPrompt – Generate DoD Checklist**  
-  - [ ] Läser spec  
-  - [ ] Skapar checklist i markdown
+- [ ] **Command: SuperPrompt – Generate DoD Checklist**  
+  - [ ] Reads spec  
+  - [ ] Creates checklist in markdown
 
-🏢 Fas 6: Enterprise Features — Skala till 500 utvecklare
+🏢 Phase 6: Enterprise Features — Scale to 500 developers
 
 - [ ] **Config Schema Validation**  
-  - [ ] JSON-schema för .superpromptrc.json  
-  - [ ] IntelliSense/autocomplete i VS Code
+  - [ ] JSON schema for .superpromptrc.json  
+  - [ ] IntelliSense/autocomplete in VS Code
 
 - [ ] **Custom Templates**  
-  - [ ] Läsa `.superprompt/templates/` automatiskt  
-  - [ ] Företags-specifika mallar
+  - [ ] Automatically read `.superprompt/templates/`  
+  - [ ] Company-specific templates
 
 - [ ] **Offline Enforcer**  
-  - [ ] Inställning `force_offline: true`  
-  - [ ] Blockera alla nätverksanrop
+  - [ ] Setting `force_offline: true`  
+  - [ ] Block all network calls
 
-- [ ] **Framtidssäker modellstruktur**  
+- [ ] **Future-proof Model Structure**  
   - [ ] `models.architect`  
   - [ ] `models.crystallize`  
   - [ ] `models.verify`
 
-🧠 Fas 7: QA & Quality Engineering
+🧠 Phase 7: QA & Quality Engineering
 
-- [ ] **Unit Tester-block (minst 6 tester)**  
-  - [ ] Sanitizer maskerar personnummer  
-  - [ ] Config reload fungerar  
-  - [ ] Architect Engine output korrekt  
-  - [ ] Compare-kommandot renderar rätt markdown  
-  - [ ] Crystallize ändrar inte inputen  
-  - [ ] Error-hantering loggar korrekt
+- [ ] **Unit Test Block (at least 6 tests)**  
+  - [ ] Sanitizer masks personal numbers  
+  - [ ] Config reload works  
+  - [ ] Architect Engine output correct  
+  - [ ] Compare command renders correct markdown  
+  - [ ] Crystallize does not modify input  
+  - [ ] Error handling logs correctly
 
 - [ ] **Performance Benchmarks**  
   - [ ] Sanitizer speed  
   - [ ] Regex throughput  
   - [ ] Render time
 
-📦 Fas 8: Packaging & Release
+📦 Phase 8: Packaging & Release
 
 - [ ] **Marketplace Assets**  
-  - [ ] Logotyp (Nordic minimalism)  
+  - [ ] Logo (Nordic minimalism)  
   - [ ] 4 screenshots  
   - [ ] Demo GIF (Split View)
 
-- [ ] **Dokumentation**  
+- [ ] **Documentation**  
   - [ ] README.md  
   - [ ] SECURITY.md  
   - [ ] CONFIGURATION.md  
   - [ ] CHANGELOG.md
 
 - [ ] **CI/CD Pipeline**  
-  - [ ] Bygg .vsix  
-  - [ ] Kör tester  
-  - [ ] Publicera vid release
+  - [ ] Build .vsix  
+  - [ ] Run tests  
+  - [ ] Publish on release
 
-🧠 DevOps-Psykologin — “Känns det som ett verktyg?”
+🧠 DevOps Psychology — "Does it feel like a tool?"
 
-Checklista innan release:  
-– Är loggarna “noisy enough”?  
-– Är UI:t 100% tyst vid framgång?  
-– Är felmeddelanden lugna och begripliga?  
-– Är allt snabbt nog att kännas “instant”?  
-– Känns det som ett arbetsverktyg, inte en lekstuga?
-
+Checklist before release:  
+– Are the logs "noisy enough"?  
+– Is the UI 100% quiet on success?  
+– Are error messages calm and understandable?  
+– Is everything fast enough to feel "instant"?  
+– Does it feel like a work tool, not a toy?
