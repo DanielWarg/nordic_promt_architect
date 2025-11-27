@@ -276,7 +276,7 @@ export function getDiplomatMarkdown(
   // Build blockers explanation
   const blockersExplanation =
     lang === 'sv'
-      ? 'För att undvika felimplementation och missad förväntan behöver vi ett mer konkret underlag. I nuvarande form är kravet inte tillräckligt definierat för utveckling.'
+      ? 'För att vi ska kunna estimera tid och påbörja arbetet behöver kraven konkretiseras. Just nu är omfattningen för otydlig för att lägga in i sprinten.'
       : 'For us to be able to estimate time and start the work, the requirements need to be concretized. Right now, the scope is too unclear to include in the sprint.';
 
   // Build next steps
