@@ -117,103 +117,113 @@ ${input}
 }
 
 /**
- * Generate Diplomat markdown template (professional email format)
+ * Generate Diplomat markdown template (soft-professional email format)
  */
 export function getDiplomatMarkdown(
   _input: string,
   analysis: TextAnalysisResult,
   config: SuperPromptConfig
 ): string {
-  const language = config.project.language === 'en' ? 'en' : 'sv';
+  const lang = config.project.language === 'en' ? 'en' : 'sv';
 
-  // Build Current Understanding section
-  const understandingText = language === 'sv'
-    ? `Baserat på din input förstår jag att: ${analysis.context}`
-    : `Based on your input, I understand that: ${analysis.context}`;
+  const greetings = {
+    sv: "Hej,",
+    en: "Hello,",
+  };
 
-  // Build Blockers section
-  let blockersText = '';
-  if (analysis.blockers.length > 0) {
-    const blockerList = analysis.blockers.map((b) => `- ${b}`).join('\n');
-    blockersText = language === 'sv'
-      ? `Vi har identifierat följande blockerare:\n${blockerList}`
-      : `We have identified the following blockers:\n${blockerList}`;
-  } else {
-    blockersText = language === 'sv'
-      ? 'Inga blockerare har identifierats explicit i din input.'
-      : 'No blockers have been explicitly identified in your input.';
+  const understandingHeader = {
+    sv: "### Nuvarande förståelse",
+    en: "### Current Understanding",
+  };
+
+  const blockersHeader = {
+    sv: "### Identifierade blockerare",
+    en: "### Identified Blockers",
+  };
+
+  const clarificationHeader = {
+    sv: "### Förtydliganden som vore hjälpsamma",
+    en: "### Clarifications That Would Be Helpful",
+  };
+
+  const nextStepsHeader = {
+    sv: "### Nästa steg",
+    en: "### Next Steps",
+  };
+
+  const closing = {
+    sv: `\n---\n\nHälsningar,\n${config.templates.role}`,
+    en: `\n---\n\nBest regards,\n${config.templates.role}`,
+  };
+
+  // Build clarification list (soft tone)
+  const clarifications: string[] = [];
+
+  if (!analysis.deadlines.length) {
+    clarifications.push(
+      lang === 'sv'
+        ? "Det vore värdefullt att veta om det finns någon deadline eller tidsram att förhålla sig till."
+        : "It would be helpful to know if there is a deadline or timeline to consider."
+    );
   }
 
-  // Build Clarification Needed section
-  let clarificationText = '';
-  const needsClarification =
-    analysis.ambiguousTerms.length > 0 || analysis.deadlines.length === 0;
-
-  if (needsClarification) {
-    const questions: string[] = [];
-    if (analysis.deadlines.length === 0) {
-      questions.push(
-        language === 'sv'
-          ? 'Vad är deadline för detta krav?'
-          : 'What is the deadline for this requirement?'
-      );
-    }
-    if (analysis.ambiguousTerms.length > 0) {
-      const vagueTerms = analysis.ambiguousTerms.slice(0, 3).join(', ');
-      questions.push(
-        language === 'sv'
-          ? `Kan du specificera vad du menar med: ${vagueTerms}?`
-          : `Could you specify what you mean by: ${vagueTerms}?`
-      );
-    }
-    if (analysis.technicalTerms.length === 0) {
-      questions.push(
-        language === 'sv'
-          ? 'Vilken teknisk stack eller plattform ska användas?'
-          : 'What technical stack or platform should be used?'
-      );
-    }
-
-    clarificationText = questions.map((q) => `- ${q}`).join('\n');
-  } else {
-    clarificationText =
-      language === 'sv'
-        ? 'Alla nödvändiga detaljer verkar vara på plats.'
-        : 'All necessary details appear to be in place.';
+  if (analysis.ambiguousTerms.length) {
+    const vague = analysis.ambiguousTerms.join(", ");
+    clarifications.push(
+      lang === 'sv'
+        ? `För att undvika missförstånd vore det hjälpsamt att få lite mer detaljer kring uttryck som: ${vague}.`
+        : `To avoid misunderstandings, it would be helpful to get more detail around terms like: ${vague}.`
+    );
   }
 
-  // Build Next Steps section
-  const nextStepsText = language === 'sv'
-    ? `- När ovanstående klargöranden är gjorda kan jag börja implementera\n- Kommer att skapa teknisk specifikation baserat på input\n- Förväntad tidslinje kommer att följa efter klargöranden`
-    : `- Once the above clarifications are provided, I can begin implementation\n- Will create technical specification based on input\n- Expected timeline will follow after clarifications`;
+  if (!analysis.technicalTerms.length) {
+    clarifications.push(
+      lang === 'sv'
+        ? "Det vore bra att veta om någon specifik teknisk plattform eller lösning är önskad."
+        : "It would be useful to know if a specific platform or technical solution is preferred."
+    );
+  }
 
-  // Sign-off
-  const signOff = language === 'sv'
-    ? `Hälsningar,\n${config.templates.role}`
-    : `Best regards,\n${config.templates.role}`;
+  const noData = lang === 'sv' ? "Inga specifika punkter identifierade." : "No specific items identified.";
 
-  return `✉️ STAKEHOLDER REPLY DRAFT
+  return `
+✉️ ${lang === 'sv' ? "UTKAST FÖR DIALOG MED STAKEHOLDER" : "STAKEHOLDER REPLY DRAFT"}
 
-### Current Understanding
+${greetings[lang]}
 
-${understandingText}
+${understandingHeader[lang]}
 
-### Identified Blockers
+${lang === 'sv'
+  ? `Baserat på din input uppfattar jag att: ${analysis.context}`
+  : `Based on your input, my understanding is that: ${analysis.context}`
+}
 
-${blockersText}
+${blockersHeader[lang]}
 
-### Clarification Needed
+${
+  analysis.blockers.length
+    ? analysis.blockers.map(b => `- ${b}`).join("\n")
+    : `- ${noData}`
+}
 
-${clarificationText}
+${clarificationHeader[lang]}
 
-### Next Steps
+${
+  clarifications.length
+    ? clarifications.map(c => `- ${c}`).join("\n")
+    : `- ${noData}`
+}
 
-${nextStepsText}
+${nextStepsHeader[lang]}
 
----
+${
+  lang === 'sv'
+    ? `- När ovanstående är tydliggjort kan jag ta fram en mer komplett teknisk specifikation.\n- Därefter kan vi planera implementation och tidslinje.\n- Jag återkopplar så snart vi har de saknade detaljerna.`
+    : `- Once the points above are clarified, I can prepare a more complete technical specification.\n- After that, we can plan implementation and timeline.\n- I will follow up as soon as we have the missing details.`
+}
 
-${signOff}
-`;
+${closing[lang]}
+  `.trim();
 }
 
 /**
