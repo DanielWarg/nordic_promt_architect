@@ -181,134 +181,102 @@ export function getDiplomatMarkdown(
   analysis: TextAnalysisResult,
   config: SuperPromptConfig
 ): string {
-  const lang = config.project.language === 'en' ? 'en' : 'sv';
+  const lang = config.project.language;
+  const isSv = lang === 'sv';
 
-  const greetings = {
-    sv: 'Hej,',
-    en: 'Hello,',
-  };
+  // Enkel hjälpfunktion för listor
+  const list = (items: string[]) =>
+    items.length > 0
+      ? items.map(i => `- ${i}`).join('\n')
+      : (isSv ? '- Inga specifika punkter identifierade.' : '- No specific items identified.');
 
-  const summaryHeader = {
-    sv: '### Sammanfattning',
-    en: '### Summary',
-  };
+  // Bygg upp "missing info" här (fanns inte i analysis)
+  const missingInfo: string[] = [];
+  if (analysis.deadlines.length === 0) {
+    missingInfo.push(isSv ? 'Tidsram/deadline saknas.' : 'Deadline/timeline is missing.');
+  }
+  if (analysis.technicalTerms.length === 0) {
+    missingInfo.push(isSv ? 'Inga tekniska detaljer är angivna.' : 'No technical details are specified.');
+  }
+  if (analysis.ambiguousTerms.length > 0) {
+    missingInfo.push(
+      isSv
+        ? 'Beskrivningen innehåller subjektiva/vaga termer.'
+        : 'The description contains subjective/vague terms.'
+    );
+  }
 
-  const blockersHeader = {
-    sv: '### Krav för att kunna starta (Blockers)',
-    en: '### Requirements to Proceed (Blockers)',
-  };
-
-  const questionsHeader = {
-    sv: '### Vi behöver svar på följande:',
-    en: '### We need answers to the following:',
-  };
-
-  const nextStepsHeader = {
-    sv: '### Nästa steg',
-    en: '### Next Steps',
-  };
-
-  const closing = {
-    sv: `\n---\n\nHälsningar,\n**${config.templates.role}**`,
-    en: `\n---\n\nBest regards,\n**${config.templates.role}**`,
-  };
-
-  // Build context for summary
-  const summaryText =
-    analysis.context
-      ? (lang === 'sv'
-          ? `Jag har mottagit önskemålet gällande ${analysis.context}. Som det är formulerat nu är omfattningen för otydlig för att lägga in i sprinten.`
-          : `I have received the request regarding ${analysis.context}. As currently formulated, the scope is too unclear to include in the sprint.`)
-      : (lang === 'sv'
-          ? 'Jag har mottagit önskemålet. Som det är formulerat nu är omfattningen för otydlig för att lägga in i sprinten.'
-          : 'I have received the request. As currently formulated, the scope is too unclear to include in the sprint.');
-
-  // Build blockers list (if any exist, show them after explanation)
-  const blockersList =
-    analysis.blockers.length > 0
-      ? `\n\n${analysis.blockers.map(b => `- ${b}`).join('\n')}`
+  // Hantera otydliga termer mer explicit
+  const ambiguitySection =
+    analysis.ambiguousTerms.length > 0
+      ? (isSv
+          ? `- Följande termer är för subjektiva för utveckling och behöver definieras: "${analysis.ambiguousTerms.join('", "')}".`
+          : `- The following terms are too subjective for development and need concrete definitions: "${analysis.ambiguousTerms.join('", "')}".`)
       : '';
 
-  // Build questions (senior tone - direct and structured)
-  const questions: string[] = [];
+  // Rubriker och texter i "senior neutral" ton
+  const headers = {
+    title: isSv ? '✉️ UTKAST FÖR DIALOG MED BESTÄLLARE' : '✉️ DRAFT: STAKEHOLDER RESPONSE',
+    greeting: isSv ? 'Hej,' : 'Hi,',
+    summary: isSv ? '### Sammanfattning av behovet' : '### Request Summary',
+    blockers: isSv ? '### Hinder för uppstart (Blockers)' : '### Blockers for Start',
+    clarification: isSv ? '### Krav för estimering & start' : '### Requirements for Estimation & Start',
+    nextSteps: isSv ? '### Nästa steg' : '### Next Steps',
+    signoff: isSv ? `Hälsningar,\n${config.templates.role}` : `Regards,\n${config.templates.role}`,
+  };
 
-  if (analysis.ambiguousTerms.length > 0) {
-    const vagueTerms = analysis.ambiguousTerms.join(', ');
-    questions.push(
-      lang === 'sv'
-        ? `**Målbild:** Följande termer är för subjektiva för utveckling och behöver definieras: ${vagueTerms}. Vad specifikt innebär de?`
-        : `**Goal:** The following terms are too subjective for development and need to be defined: ${vagueTerms}. What do they specifically mean?`
-    );
-  }
+  const introText = isSv
+    ? 'Jag har granskat önskemålet. För att säkerställa korrekt leverans och undvika omarbete behöver några punkter förtydligas.'
+    : 'I have reviewed the request. To ensure correct delivery and avoid rework, several points need clarification.';
 
-  if (!analysis.technicalTerms.length) {
-    questions.push(
-      lang === 'sv'
-        ? '**Omfattning:** Vad avses exakt? Gäller det en specifik vy, modul eller hela applikationen?'
-        : '**Scope:** What exactly is included? Does it apply to a specific view, module, or the entire application?'
-    );
-  }
+  const blockersText =
+    analysis.blockers.length > 0
+      ? list(analysis.blockers)
+      : (isSv
+          ? 'Vi ser inga tydliga tekniska hinder just nu, men beskrivningen är för vag för att kunna estimeras.'
+          : 'We do not currently see explicit technical blockers, but the description is too vague to estimate.');
 
-  if (!analysis.deadlines.length) {
-    questions.push(
-      lang === 'sv'
-        ? '**Deadline:** Finns det en tidplan eller release-constraint att förhålla sig till?'
-        : '**Deadline:** Is there a timeline or release constraint to consider?'
-    );
-  }
+  const clarificationList =
+    missingInfo.length > 0
+      ? missingInfo.map(i => `- ${i}`).join('\n')
+      : (isSv
+          ? '- Inga större oklarheter identifierade, men om något saknas får du gärna komplettera.'
+          : '- No major clarification issues identified, but feel free to add details if something is missing.');
 
-  // Always add measurability question if ambiguous terms exist
-  if (analysis.ambiguousTerms.length > 0) {
-    questions.push(
-      lang === 'sv'
-        ? '**Mätbarhet:** Hur vet vi när vi är klara? Subjektiva termer som "snyggare" eller "bättre" är inte testbara krav.'
-        : '**Measurability:** How do we know when we are done? Subjective terms like "nicer" or "better" are not testable requirements.'
-    );
-  }
-
-  const questionsSection =
-    questions.length > 0
-      ? questions.map((q, idx) => `${idx + 1}. ${q}`).join('\n\n')
-      : (lang === 'sv'
-          ? 'Alla nödvändiga detaljer verkar vara på plats.'
-          : 'All necessary details appear to be in place.');
-
-  // Build blockers explanation
-  const blockersExplanation =
-    lang === 'sv'
-      ? 'För att vi ska kunna estimera tid och påbörja arbetet behöver kraven konkretiseras. Just nu är omfattningen för otydlig för att lägga in i sprinten.'
-      : 'For us to be able to estimate time and start the work, the requirements need to be concretized. Right now, the scope is too unclear to include in the sprint.';
-
-  // Build next steps
-  const nextStepsSection =
-    lang === 'sv'
-      ? `När vi har dessa svar kan jag ta fram ett konkret tekniskt förslag samt estimera arbetet.\n\nTills vidare markerar jag detta som **Needs Clarification**.`
-      : `Once we have these answers, I can prepare a concrete technical proposal and estimate the work.\n\nFor now, I am marking this as **Needs Clarification**.`;
+  const contextLine = analysis.context || (isSv ? 'Övergripande önskemål' : 'General request');
 
   return `
-✉️ ${lang === 'sv'
-  ? 'UTKAST FÖR DIALOG MED STAKEHOLDER'
-  : 'STAKEHOLDER REPLY DRAFT'}
+${headers.title}
 
-${greetings[lang]}
+${headers.greeting}
 
-${summaryHeader[lang]}
+${introText}
 
-${summaryText}
+${headers.summary}
 
-${blockersHeader[lang]}
+> "${contextLine}"
 
-${blockersExplanation}${blockersList}
+${headers.blockers}
 
-${questionsHeader[lang]}
+${blockersText}
 
-${questionsSection}
+${headers.clarification}
 
-${nextStepsHeader[lang]}
+${clarificationList}
+${ambiguitySection ? `\n${ambiguitySection}` : ''}
 
-${nextStepsSection}
+${headers.nextSteps}
 
-${closing[lang]}
+${isSv
+  ? '- När punkterna ovan är besvarade kan jag ta fram teknisk lösning och tidsestimering.'
+  : '- Once the points above are clarified, I can provide a technical solution and time estimate.'}
+${isSv
+  ? '- Därefter kan arbetet planeras in i kommande sprint.'
+  : '- After that, the work can be planned into an upcoming sprint.'}
+
+---
+
+${headers.signoff}
   `.trim();
 }
 
