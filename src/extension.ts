@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Logger } from './ui/Logger';
 import { ViewManager } from './ui/ViewManager';
+import { MenuService } from './ui/Menus';
 import { ConfigurationService } from './config/configuration';
 import { Sanitizer } from './security/Sanitizer';
 import { CrystallizeEngine } from './core/CrystallizeEngine';
@@ -337,6 +338,20 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   });
 
+  // Create MenuService instance
+  const menuService = new MenuService();
+
+  // Register menu commands
+  const crystallizeMenuCommand = vscode.commands.registerCommand('superprompt.crystallizeMenu', async () => {
+    logger.info('Crystallize Menu invoked');
+    await menuService.showCrystallizeMenu();
+  });
+
+  const toolsMenuCommand = vscode.commands.registerCommand('superprompt.toolsMenu', async () => {
+    logger.info('Developer Tools Menu invoked');
+    await menuService.showDeveloperToolsMenu();
+  });
+
   context.subscriptions.push(
     initConfigCommand,
     crystallizeCommand,
@@ -346,6 +361,8 @@ export function activate(context: vscode.ExtensionContext): void {
     verifyCommand,
     compareSelectionsCommand,
     analyzeSafetyCommand,
+    crystallizeMenuCommand,
+    toolsMenuCommand,
     configService,
     logger
   );

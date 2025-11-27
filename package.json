@@ -10,6 +10,8 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:superprompt.crystallizeMenu",
+    "onCommand:superprompt.toolsMenu",
     "onCommand:superprompt.crystallize",
     "onCommand:superprompt.crystallizeSpec",
     "onCommand:superprompt.crystallizeDiplomat",
@@ -22,6 +24,16 @@
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "superprompt.crystallizeMenu",
+        "title": "Crystallize Requirement",
+        "category": "Nordic Prompt Architect"
+      },
+      {
+        "command": "superprompt.toolsMenu",
+        "title": "Developer Tools",
+        "category": "Nordic Prompt Architect"
+      },
       {
         "command": "superprompt.crystallize",
         "title": "Crystallize: Transform vague text to technical spec"
