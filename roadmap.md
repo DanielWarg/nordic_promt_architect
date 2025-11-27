@@ -137,6 +137,66 @@ Everything here is part of the long-term backlog and builds on the three core en
 
 ---
 
+## 🔄 Phase 4.5: Work Item Integration — Azure DevOps & CRM 365
+
+**Sprint 4.5: DevOps Integration**
+
+*Goal: Make NPA not only produce specifications, but also push them into the delivery pipeline — without losing the "offline-first" principle for the standard version.*
+
+- [ ] **DevOps-Optimized Tech Spec Template (Safe, Offline)**  
+  - [ ] Add "DevOps Copy Block" to Tech Spec:
+    - [ ] Title suggestion (single line summary)
+    - [ ] Description block (markdown)
+    - [ ] Acceptance Criteria formatted for DevOps
+    - [ ] Suggested tags (e.g., `npa`, `crystallized`, domain-based tags)
+  - [ ] Ensure output maps cleanly into Azure DevOps fields:
+    - [ ] Title
+    - [ ] Description
+    - [ ] Acceptance Criteria (as markdown or checklist)
+    - [ ] Tags
+  - [ ] No network calls — fully offline
+
+- [ ] **Azure DevOps Integration (Optional, Not Default)**  
+  - [ ] New config section in `.superpromptrc.json`:
+    ```json
+    "azure": {
+      "enabled": false,
+      "organization": "",
+      "project": "",
+      "base_url": "",
+      "pat": "use vscode secrets"
+    }
+    ```
+  - [ ] Add new command: `superprompt.createDevOpsWorkItem`
+  - [ ] Behavior:
+    - [ ] Uses the Tech Spec output as payload
+    - [ ] Creates a Work Item through Azure DevOps REST API
+    - [ ] Shows confirmation toast with Work Item ID
+    - [ ] Logs creation details in "Nordic Prompt Logs"
+  - [ ] Must require:
+    - [ ] `"force_offline": false`
+    - [ ] `"azure.enabled": true`
+
+- [ ] **CRM 365 / Dataverse Integration (Future Option)**  
+  - [ ] Architecture placeholder for CRM connector
+  - [ ] No implementation required yet
+  - [ ] Requirements:
+    - [ ] OAuth token support
+    - [ ] Configurable mappings (case → DevOps → CRM)
+  - [ ] Recommended as enterprise add-on, not community edition
+
+**Constraints & Principles:**
+- **Offline-first by default** — cloud features must be opt-in
+- **Security-first** — PAT/token must be stored via VS Code Secret Store (not config file)
+- **Deterministic output** — Tech Spec content must be clean, predictable, and safe for enterprise pipelines
+
+**Expected Impact:**
+- Developers can take vague Jira/Slack/email request → Crystallize → ready DevOps story in seconds
+- Teams gain faster grooming, clearer specs, fewer missförstånd
+- Enables future enterprise adoption where NPA becomes a bridge into Azure DevOps, Microsoft CRM 365, and custom work item pipelines
+
+---
+
 ## ✅ Phase 5: Verify Engine — Compliance v1
 
 **Sprint 6: Verify Engine**
@@ -309,9 +369,10 @@ These milestones represent key decision points for go-to-market strategy and ent
 - **Phase 2 (Security Engine):** ✅ 100% Complete
 - **Phase 3 (Crystallize Engine):** ✅ 100% Complete
 - **Phase 4 (Architect Engine):** [ ] 0% Complete
+- **Phase 4.5 (Work Item Integration):** [ ] 0% Complete
 - **Phase 5 (Verify Engine):** [ ] 0% Complete
 - **Phase 6 (Enterprise Features):** [ ] 0% Complete
 - **Phase 7 (QA & Quality):** [~] 60% Complete (CI/CD done, tests pending)
 - **Phase 8 (Packaging):** [~] 40% Complete (Documentation done, assets pending)
 
-**Overall Progress:** ~55% Complete (3 of 8 phases fully done)
+**Overall Progress:** ~47% Complete (3 of 9 phases fully done)
