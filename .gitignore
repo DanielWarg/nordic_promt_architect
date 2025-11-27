@@ -6,3 +6,6 @@ node_modules
 .DS_Store
 *.log
 
+# User-specific configuration (project-specific config should be committed as example)
+.superpromptrc.json
+
