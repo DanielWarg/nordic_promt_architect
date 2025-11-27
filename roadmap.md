@@ -145,6 +145,15 @@ Goal: Make quality assurance automated.
   - [ ] Regex throughput  
   - [ ] Render time
 
+- [x] **CI/CD Infrastructure**  
+  - [x] GitHub Actions CI workflow  
+  - [x] Build pipeline (TypeScript compile)  
+  - [x] ESLint quality gate  
+  - [x] Offline-first verification  
+  - [x] Strict TypeScript enforcement (no 'any')  
+  - [x] PR template with quality gates  
+  - [x] Release automation workflow
+
 📦 Phase 8: Packaging & Release
 
 - [ ] **Marketplace Assets**  
@@ -152,16 +161,16 @@ Goal: Make quality assurance automated.
   - [ ] 4 screenshots  
   - [ ] Demo GIF (Split View)
 
-- [ ] **Documentation**  
-  - [ ] README.md  
+- [x] **Documentation**  
+  - [x] README.md  
   - [ ] SECURITY.md  
   - [ ] CONFIGURATION.md  
-  - [ ] CHANGELOG.md
+  - [x] CHANGELOG.md
 
-- [ ] **CI/CD Pipeline**  
-  - [ ] Build .vsix  
-  - [ ] Run tests  
-  - [ ] Publish on release
+- [x] **CI/CD Pipeline**  
+  - [x] Build .vsix (automated)  
+  - [x] Run linting/tests  
+  - [ ] Publish to marketplace (manual for now)
 
 🧠 DevOps Psychology — "Does it feel like a tool?"
 
