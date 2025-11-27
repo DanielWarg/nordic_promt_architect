@@ -61,21 +61,33 @@ Goal: "The security chief should love this."
 
 Goal: Turn vague text into hard, technical specifications.
 
-- [ ] **The "Tech Spec" Template**  
-  - [ ] Context  
-  - [ ] Blockers  
-  - [ ] Risks  
-  - [ ] Acceptance Criteria  
-  - [ ] Technical dependencies
+- [x] **The "Tech Spec" Template**  
+  - [x] Context  
+  - [x] Blockers  
+  - [x] Risks  
+  - [x] Acceptance Criteria  
+  - [x] Technical dependencies
+  - [x] Clarity Score (0-100) with emoji indicator
+  - [x] Language-aware (sv/en)
 
-- [ ] **The "Diplomat" Template**  
-  - [ ] "This is the next step"  
-  - [ ] "This blocks us"  
-  - [ ] "Proposed solution"
+- [x] **The "Diplomat" Template**  
+  - [x] Summary section
+  - [x] Blockers section (always shows consistent professional message)
+  - [x] Clarification requirements
+  - [x] Next steps with "Needs Clarification" status
+  - [x] Senior professional consultant tone
 
-- [ ] **Command: SuperPrompt – Crystallize Requirements**  
-  - [ ] Applied to selected text  
-  - [ ] Output in split view
+- [x] **Command: SuperPrompt – Crystallize Requirements**  
+  - [x] Applied to selected text  
+  - [x] Output in split view
+  - [x] `superprompt.crystallizeSpec` - Generate Tech Spec
+  - [x] `superprompt.crystallizeDiplomat` - Generate Diplomatic Reply
+  - [x] `superprompt.crystallize` - Backward compatible alias
+
+- [x] **Text Analysis Engine**
+  - [x] PatternMatcher for extracting deadlines, blockers, risks, technical terms
+  - [x] TextAnalyzer with clarity score calculation
+  - [x] Language-aware pattern matching (sv/en)
 
 🏗️ Phase 4: Architect Engine — Code & Prompt Design
 
